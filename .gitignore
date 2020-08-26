@@ -1,0 +1,17 @@
+my.cf
+stderr.log
+*.lis
+*.bin
+*.lst
+*.ihx
+*.hex
+*.obj
+*.rom
+*.lis
+zcc_opt.def
+$(APP_NAME)
+*.reloc
+*.sym
+*.map
+disasm.txt
+unused.txt

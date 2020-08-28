@@ -5,6 +5,8 @@
 #include "ne2k_const.h"
 #include "romfunctions.h"
 #include "debug.h"
+#include "uip/uip.h"
+#include "uip/uip_arp.h"
 
 struct ne2k_struct {
     uint8_t mac[6];                 // MAC address
@@ -26,4 +28,4 @@ void ne2k_setup(uint16_t iobase);
 int ne2k_transmit(uint8_t *packet, uint16_t length);
 void ne2k_readmem(uint16_t src, void *dst, uint16_t len);
 void ne2k_get_packet(uint16_t src, char *dst, uint16_t len);
-void ne2k_receive();
+uint16_t ne2k_receive();

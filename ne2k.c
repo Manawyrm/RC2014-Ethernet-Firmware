@@ -1,4 +1,6 @@
 #include "ne2k.h"
+
+
 //
 // NE2000 network driver
 // Originally written by Michael Ringgaard
@@ -30,6 +32,7 @@
 // SUCH DAMAGE.
 
 struct ne2k_struct ne2k;
+struct uip_eth_addr uip_addr; 
 
 void ne2k_setup(uint16_t iobase)
 {
@@ -42,6 +45,11 @@ void ne2k_setup(uint16_t iobase)
 	ne2k.mac[3] = 0x42;
 	ne2k.mac[4] = 0x23;
 	ne2k.mac[5] = 0x42;
+
+    for (uint8_t i = 0; i < ETHER_ADDR_LEN; i++)
+        uip_addr.addr[i] = ne2k.mac[i];
+
+    uip_setethaddr(uip_addr);
 
 	ne2k.rx_page_start = (16 * 1024) / NE_PAGE_SIZE;
 	ne2k.rx_page_stop = ne2k.rx_page_start + ((16 * 1024) / NE_PAGE_SIZE) - NE_TXBUF_SIZE * NE_TX_BUFERS;
@@ -160,7 +168,7 @@ int ne2k_transmit(uint8_t *packet, uint16_t length)
     // Set page 0 registers, transmit packet, and start
     z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_RD2 | NE_CR_TXP | NE_CR_STA);
 
-    myprintf("[NE2k] Transmitted packet with length %d\n", length);
+    //myprintf("[NE2k] Transmitted packet with length %d\n", length);
 
     return 0;
 }
@@ -205,11 +213,7 @@ void ne2k_get_packet(uint16_t src, char *dst, uint16_t len)
     ne2k_readmem(src, dst, len);
 }
 
-
-uint8_t packetbuffer[1500];
-
-
-void ne2k_receive()
+uint16_t ne2k_receive()
 {
     struct recv_ring_desc packet_hdr;
     unsigned short packet_ptr;
@@ -220,7 +224,7 @@ void ne2k_receive()
     // Set page 1 registers
     z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_PAGE_1 | NE_CR_RD2 | NE_CR_STA);
 
-    while (ne2k.next_pkt != z80_inp(ne2k.iobase + NE_P1_CURR))
+    if (ne2k.next_pkt != z80_inp(ne2k.iobase + NE_P1_CURR))
     {
         // Get pointer to buffer header structure
         packet_ptr = ne2k.next_pkt * NE_PAGE_SIZE;
@@ -232,6 +236,10 @@ void ne2k_receive()
         len = packet_hdr.count - sizeof(struct recv_ring_desc);
         //p = pbuf_alloc(PBUF_RAW, len, PBUF_RW);
 
+        if (len > UIP_BUFSIZE)
+        {
+            myprintf("[NE2k] packet too large! undefined behaviour! :/\n");
+        }
         // Get packet from nic and send to upper layer
         //if (p != NULL)
         //{
@@ -239,13 +247,13 @@ void ne2k_receive()
             //for (q = p; q != NULL; q = q->next)
             //{
 
-            ne2k_get_packet(packet_ptr, packetbuffer, len);
+            ne2k_get_packet(packet_ptr, uip_buf, len);
             packet_ptr += len;
 
             //}
 
-            myprintf("[NE2k] received packet, %d bytes\n", len);
-            print_memory(packetbuffer, len);
+            //myprintf("[NE2k] received packet, %d bytes\n", len);
+            //print_memory(uip_buf, len);
             /*rc = dev_receive(ne->devno, p); 
             if (rc < 0)
             {
@@ -270,9 +278,13 @@ void ne2k_receive()
         if (bndry < ne2k.rx_page_start) bndry = ne2k.rx_page_stop - 1;
         z80_outp(ne2k.iobase + NE_P0_BNRY, bndry);
 
-        myprintf("[NE2k] start: %02x stop: %02x next: %02x bndry: %02x\n", ne2k.rx_page_start, ne2k.rx_page_stop, ne2k.next_pkt, bndry);
+        //myprintf("[NE2k] start: %02x stop: %02x next: %02x bndry: %02x\n", ne2k.rx_page_start, ne2k.rx_page_stop, ne2k.next_pkt, bndry);
 
         // Set page 1 registers
         z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_PAGE_1 | NE_CR_RD2 | NE_CR_STA);
+
+        return len;
     }
+
+    return 0;
 }

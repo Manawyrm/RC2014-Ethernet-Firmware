@@ -1,34 +1,112 @@
 #include "main.h"
 
-const uint8_t etherpack[] = { 
-	0x00, 0x2b, 0x67, 0x26, 0x31, 0x13, 0x00, 0x80, 0x41, 0x42, 0x23, 0x42, 0x08, 0x00,
-	0x45, 0x00, 0x00, 0x54, 0xdd, 0x28, 0x40, 0x00, 0x40, 0x01, 0x3a, 0xa2, 0x0a, 0x04,
-	0x0d, 0xd6, 0x0a, 0x04, 0x01, 0x01, 0x08, 0x00, 0xc7, 0x60, 0x00, 0x04, 0x00, 0x02,
-	0x97, 0xb5, 0x46, 0x5f, 0x00, 0x00, 0x00, 0x00, 0x8b, 0xb1, 0x08, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19, 0x1a, 0x1b,
-	0x1c, 0x1d, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x28, 0x29,
-	0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37 };  
+#define BUF ((struct uip_eth_hdr *)&uip_buf[0])
+
+#ifndef NULL
+#define NULL (void *)0
+#endif /* NULL */
+
+int i;
+uip_ipaddr_t ipaddr;
+struct timer periodic_timer, arp_timer;
+uint32_t ticks = 0; 
 
 void main()
 {
 	rom_putstring_uart("rtl8019 driver!\n");
-
   	ne2k_setup(0x20);
+
+	timer_set(&periodic_timer, CLOCK_SECOND / 2);
+	timer_set(&arp_timer, CLOCK_SECOND * 10);
+
+	uip_init();
+
+	uip_ipaddr(ipaddr, 10,0,0,2);
+	uip_sethostaddr(ipaddr);
+	uip_ipaddr(ipaddr, 10,0,0,1);
+	uip_setdraddr(ipaddr);
+	uip_ipaddr(ipaddr, 255,255,255,0);
+	uip_setnetmask(ipaddr);
+
+	hello_world_init();
+
+	while(1)
+	{
+		uip_len = ne2k_receive();
+		if(uip_len > 0)
+		{
+			if(BUF->type == htons(UIP_ETHTYPE_IP))
+			{
+				uip_arp_ipin();
+				uip_input();
+				/* If the above function invocation resulted in data that
+					should be sent out on the network, the global variable
+					uip_len is set to a value > 0. */
+				if(uip_len > 0)
+				{
+					uip_arp_out();
+					ne2k_transmit(uip_buf, uip_len);
+				}
+			}
+			else if(BUF->type == htons(UIP_ETHTYPE_ARP))
+			{
+				uip_arp_arpin();
+				/* If the above function invocation resulted in data that
+					should be sent out on the network, the global variable
+					uip_len is set to a value > 0. */
+				if(uip_len > 0)
+				{
+					ne2k_transmit(uip_buf, uip_len);
+				}
+			}
+		} 
+		else if(timer_expired(&periodic_timer))
+		{
+			timer_reset(&periodic_timer);
+			for(i = 0; i < UIP_CONNS; i++)
+			{
+				uip_periodic(i);
+				/* If the above function invocation resulted in data that
+					should be sent out on the network, the global variable
+					uip_len is set to a value > 0. */
+				if(uip_len > 0)
+				{
+					uip_arp_out();
+					ne2k_transmit(uip_buf, uip_len);
+				}
+			}
+			
+			/* Call the ARP timer function every 10 seconds. */
+			if(timer_expired(&arp_timer))
+			{
+				timer_reset(&arp_timer);
+				uip_arp_timer();
+			}
+		}
+		ticks++;
+
+		if (ticks % 1000 == 0)
+		{
+			myprintf("ticks: %lu\n", ticks);
+		}
+	}
+
 
 	while (1)
 	{
-		/*ne2k_transmit(etherpack, sizeof(etherpack));*/
-		for (uint32_t i = 0; i < 500; ++i)
+		rom_putstring_uart("This should never happen!\n");
+		/*ne2k_transmit(uip_buf, uip_len);*/
+		/*for (uint32_t i = 0; i < 500; ++i)
 		{
 			z80_delay_ms(1);
 		}
 
-		ne2k_receive();
+		
 
 		for (uint32_t i = 0; i < 500; ++i)
 		{
 			z80_delay_ms(1);
 		}
-
+		*/
 	}
 }

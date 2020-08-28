@@ -3,6 +3,9 @@ CC = zcc
 CFLAGS = +rc2014-manawyrm -subtype=acia -vn -SO3 -O3  --opt-code-size -clib=sdcc_iy -pragma-define:__CRTCFG=-1
 #  --max-allocs-per-node200000
 
+
+#-vn -SO3 -O3  --opt-code-size
+
 all:
 	$(CC) $(CFLAGS) --list $(SRCS) -o main -create-app
 

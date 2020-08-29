@@ -28,7 +28,7 @@ void main()
 	uip_ipaddr(ipaddr, 255,255,255,0);
 	uip_setnetmask(ipaddr);
 
-	hello_world_init();
+	telnetd_init();
 
 	while(1)
 	{

@@ -1,6 +1,6 @@
 SRCS=$(wildcard */*.c) $(wildcard *.c)
 CC = zcc
-CFLAGS = +rc2014-manawyrm -subtype=acia -vn -SO0 -O0 -compiler=sccz80 -pragma-define:__CRTCFG=-1
+CFLAGS = +rc2014-manawyrm -subtype=acia -vn -SO1 -O1 -clib=sdcc_iy --c-code-in-asm -pragma-define:__CRTCFG=-1
 #  --max-allocs-per-node200000
 
 #/*-SO2 -O2*/

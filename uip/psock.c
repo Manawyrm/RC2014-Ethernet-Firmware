@@ -196,7 +196,9 @@ PT_THREAD(psock_send(register volatile struct psock *s, const char *buf,
 
   /* We loop here until all data is sent. The s->sendlen variable is
      updated by the data_sent() function. */
-  while(s->sendlen > 0) {
+  if (!s->sendlen) goto acked;
+ack_loop:
+//  while(s->sendlen > 0) {
     myprintf("%s: state 0x%02x sendlen %u psock %p\n", __func__, s->state, s->sendlen, s);
     /*
      * The condition for this PT_WAIT_UNTIL is a little tricky: the
@@ -209,8 +211,10 @@ PT_THREAD(psock_send(register volatile struct psock *s, const char *buf,
      * to be called when it returns false.
      */
     PT_WAIT_UNTIL(&s->psockpt, data_acked(s) & send_data(s));
-  }
+    if (s->sendlen) goto ack_loop;
+//  }
 
+acked:
   s->state = STATE_NONE;
   
   PT_END(&s->psockpt);

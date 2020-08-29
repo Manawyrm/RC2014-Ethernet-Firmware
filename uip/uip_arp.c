@@ -157,7 +157,7 @@ uip_arp_timer(void)
 static void
 uip_arp_update(u16_t *ipaddr, struct uip_eth_addr *ethaddr)
 {
-  struct arp_entry *tabptr;
+  register struct arp_entry *tabptr;
   /* Walk through the ARP mapping table and try to find an entry to
      update. If none is found, the IP -> MAC address mapping is
      inserted in the ARP table. */

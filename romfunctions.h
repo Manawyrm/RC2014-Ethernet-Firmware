@@ -16,7 +16,7 @@ extern void** _romfunctions;
 #define ROM_PF_READDIR 10
 #define ROM_CF_WRITE 11
 
-typedef void (*rom_putstring_uart_f) (const uint8_t*);   
+typedef void (*rom_putstring_uart_f) (const uint8_t* text);   
 
 static inline void rom_putstring_uart(const uint8_t* text)
 {
@@ -37,7 +37,7 @@ static inline uint8_t rom_uart_read()
 	return ((rom_uart_read_f)_romfunctions[ROM_UART_READ])();
 }
 
-typedef void (*rom_putchar_uart_f) (char);   
+typedef void (*rom_putchar_uart_f) (char text);   
 
 static inline void rom_putchar_uart(char text)
 {
@@ -52,14 +52,14 @@ static inline void rom_cf_init()
 	((rom_cf_init_f)_romfunctions[ROM_CF_INIT])();
 }
 
-typedef void (*rom_cf_read_f) (uint32_t, uint8_t*);   
+typedef void (*rom_cf_read_f) (uint32_t sector, uint8_t* data);   
 
 static inline void rom_cf_read(uint32_t sector, uint8_t* data)
 {
 	((rom_cf_read_f)_romfunctions[ROM_CF_READ])(sector, data);
 }
 
-typedef void (*rom_cf_write_f) (uint32_t, uint8_t*);   
+typedef void (*rom_cf_write_f) (uint32_t sector, uint8_t* data);   
 
 static inline void rom_cf_write(uint32_t sector, uint8_t* data)
 {

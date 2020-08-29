@@ -1,6 +1,6 @@
-SRCS=$(wildcard */*.c) $(wildcard *.c)
+SRCS=uip/httpd.c uip/httpd-cgi.c uip/httpd-fs.c uip/http-strings.c uip/memb.c uip/psock.c uip/timer.c uip/uip.c uip/uiplib.c uip/uip-fw.c uip/uip-neighbor.c uip/uip_arp.c  $(wildcard *.c)
 CC = zcc
-CFLAGS = +rc2014-manawyrm -subtype=acia -vn -SO1 -O1 -clib=sdcc_iy --c-code-in-asm -pragma-define:__CRTCFG=-1
+CFLAGS = +rc2014-manawyrm -subtype=acia -vn -SO2 -O2 -clib=sdcc_iy --c-code-in-asm -pragma-define:__CRTCFG=-1
 #  --max-allocs-per-node200000
 
 #/*-SO2 -O2*/

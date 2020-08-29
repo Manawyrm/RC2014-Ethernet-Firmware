@@ -28,7 +28,7 @@ void main()
 	uip_ipaddr(ipaddr, 255,255,255,0);
 	uip_setnetmask(ipaddr);
 
-	hello_world_init();
+	httpd_init();
 
 	while(1)
 	{
@@ -87,10 +87,10 @@ void main()
 		}
 		ticks++;
 
-		if (ticks % 10000 == 0)
-		{
-			myprintf("ticks: %lu\n", ticks);
-		}
+		//if (ticks % 10000 == 0)
+		//{
+		//	myprintf("ticks: %lu\n", ticks);
+		//}
 	}
 
 

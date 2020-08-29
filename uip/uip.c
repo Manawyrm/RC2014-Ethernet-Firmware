@@ -80,7 +80,7 @@
  * the packet back to the peer.
 */
 #include "debug.h"
-#define DEBUG_PRINTF(...) myprintf(__VA_ARGS__)
+#define DEBUG_PRINTF(...) /*myprintf(__VA_ARGS__)*/
 
 #include "uip.h"
 #include "uipopt.h"

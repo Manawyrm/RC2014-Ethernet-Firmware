@@ -162,7 +162,7 @@ send_data(register volatile struct psock *s)
 static char
 data_acked(register volatile struct psock *s)
 {
-  myprintf("%s: state 0x%02x sendlen %u psock %p\n", __func__, s->state, s->sendlen, s);
+  //myprintf("%s: state 0x%02x sendlen %u psock %p\n", __func__, s->state, s->sendlen, s);
   if(s->state == STATE_DATA_SENT && uip_acked()) {
     if(s->sendlen > uip_mss()) {
       s->sendlen -= uip_mss();
@@ -199,7 +199,7 @@ PT_THREAD(psock_send(register volatile struct psock *s, const char *buf,
   if (!s->sendlen) goto acked;
 ack_loop:
 //  while(s->sendlen > 0) {
-    myprintf("%s: state 0x%02x sendlen %u psock %p\n", __func__, s->state, s->sendlen, s);
+    //myprintf("%s: state 0x%02x sendlen %u psock %p\n", __func__, s->state, s->sendlen, s);
     /*
      * The condition for this PT_WAIT_UNTIL is a little tricky: the
      * protothread will wait here until all data has been acknowledged
@@ -316,7 +316,7 @@ PT_THREAD(psock_readbuf(register struct psock *psock))
   do {
     if(psock->readlen == 0) {
       PT_WAIT_UNTIL(&psock->psockpt, psock_newdata(psock));
-      printf("Waited for newdata\n");
+      //printf("Waited for newdata\n");
       psock->state = STATE_READ;
       psock->readptr = (u8_t *)uip_appdata;
       psock->readlen = uip_datalen();

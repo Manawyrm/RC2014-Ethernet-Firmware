@@ -119,7 +119,7 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_LOGGING         1
+#define UIP_CONF_LOGGING         0
 
 /**
  * UDP support on or off
@@ -140,14 +140,14 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_STATISTICS      0
+#define UIP_CONF_STATISTICS      1
 
 /* Here we include the header file for the application(s) we use in
    our project. */
 /*#include "smtp.h"*/
-#include "uip/hello-world.h"
+//#include "uip/hello-world.h"
 //#include "uip/httpd.h"
-//#include "uip/webserver.h"
+#include "uip/webserver.h"
 /*#include "dhcpc.h"*/
 /*#include "resolv.h"*/
 /*#include "webclient.h"*/

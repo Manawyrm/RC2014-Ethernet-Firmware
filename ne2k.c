@@ -184,7 +184,7 @@ int ne2k_transmit(uint8_t *packet, uint16_t length)
     // Set page 0 registers, transmit packet, and start
     z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_RD2 | NE_CR_TXP | NE_CR_STA);
 
-    myprintf("[NE2k] Transmitted packet with length %d\n", length);
+    //myprintf("[NE2k] Transmitted packet with length %d\n", length);
     /*print_memory(uip_buf, length);
     myprintf("\n\n");*/
    // z80_delay_ms(100);
@@ -270,7 +270,7 @@ uint16_t ne2k_receive()
 
             //}
 
-            myprintf("[NE2k] received packet, %d bytes\r\n", len);
+            //myprintf("[NE2k] received packet, %d bytes\r\n", len);
             /*print_memory(uip_buf, len);
             myprintf("\r\n");*/
             /*rc = dev_receive(ne->devno, p); 

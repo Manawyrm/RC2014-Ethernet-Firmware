@@ -151,10 +151,10 @@ struct pt {
   do {						\
     LC_SET((pt)->lc);				\
     if(!(condition)) {				\
-      myprintf("[PT][PT_WAIT_UNTIL][%s] Waiting for %s\n", __func__, #condition); \
+      /*myprintf("[PT][PT_WAIT_UNTIL][%s] Waiting for %s\n", __func__, #condition); */\
       return PT_WAITING;			\
     }						\
-    myprintf("[PT][PT_WAIT_UNTIL][%s] %s fulfilled\n", __func__, #condition); \
+    /*myprintf("[PT][PT_WAIT_UNTIL][%s] %s fulfilled\n", __func__, #condition); */\
   } while(0)
 
 /**

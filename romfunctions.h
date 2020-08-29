@@ -16,9 +16,9 @@ extern void** _romfunctions;
 #define ROM_PF_READDIR 10
 #define ROM_CF_WRITE 11
 
-typedef void (*rom_putstring_uart_f) (uint8_t*);   
+typedef void (*rom_putstring_uart_f) (const uint8_t*);   
 
-static inline void rom_putstring_uart(uint8_t* text)
+static inline void rom_putstring_uart(const uint8_t* text)
 {
 	((rom_putstring_uart_f)_romfunctions[ROM_PUTSTRING_UART])(text);
 }

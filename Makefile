@@ -1,10 +1,10 @@
 SRCS=$(wildcard */*.c) $(wildcard *.c)
 CC = zcc
-CFLAGS = +rc2014-manawyrm -subtype=acia -vn -SO2 -O2  --opt-code-size -clib=sdcc_iy -pragma-define:__CRTCFG=-1
+CFLAGS = +rc2014-manawyrm -subtype=acia -vn -SO0 -O0 -compiler=sccz80 -pragma-define:__CRTCFG=-1
 #  --max-allocs-per-node200000
 
-
-#-vn -SO3 -O3  --opt-code-size
+#/*-SO2 -O2*/
+#-vn -SO3 -O3  --opt-code-size  --opt-code-size
 
 all:
 	$(CC) $(CFLAGS) --list $(SRCS) -o main -create-app

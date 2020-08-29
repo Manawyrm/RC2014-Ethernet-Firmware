@@ -28,7 +28,7 @@ void main()
 	uip_ipaddr(ipaddr, 255,255,255,0);
 	uip_setnetmask(ipaddr);
 
-	telnetd_init();
+	hello_world_init();
 
 	while(1)
 	{
@@ -87,10 +87,10 @@ void main()
 		}
 		ticks++;
 
-		/*if (ticks % 1000 == 0)
+		if (ticks % 10000 == 0)
 		{
 			myprintf("ticks: %lu\n", ticks);
-		}*/
+		}
 	}
 
 

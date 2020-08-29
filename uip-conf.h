@@ -55,7 +55,8 @@
 #ifndef __UIP_CONF_H__
 #define __UIP_CONF_H__
 
-#include <inttypes.h>
+//#include <inttypes.h>
+#include <stdint.h>
 
 /**
  * 8 bit datatype
@@ -144,9 +145,9 @@ typedef unsigned short uip_stats_t;
 /* Here we include the header file for the application(s) we use in
    our project. */
 /*#include "smtp.h"*/
-/*#include "hello-world.h"*/
-#include "telnetd.h"
-/*#include "webserver.h"*/
+#include "uip/hello-world.h"
+//#include "uip/httpd.h"
+//#include "uip/webserver.h"
 /*#include "dhcpc.h"*/
 /*#include "resolv.h"*/
 /*#include "webclient.h"*/

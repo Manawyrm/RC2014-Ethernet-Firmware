@@ -414,7 +414,7 @@ uip_init(void)
 struct uip_conn *
 uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
 {
-  register struct uip_conn *conn, *cconn;
+  struct uip_conn *conn, *cconn;
   
   /* Find an unused local port. */
  again:
@@ -480,7 +480,7 @@ uip_connect(uip_ipaddr_t *ripaddr, u16_t rport)
 struct uip_udp_conn *
 uip_udp_new(uip_ipaddr_t *ripaddr, u16_t rport)
 {
-  register struct uip_udp_conn *conn;
+  struct uip_udp_conn *conn;
   
   /* Find an unused local port. */
  again:
@@ -689,7 +689,7 @@ uip_add_rcv_nxt(u16_t n)
 void
 uip_process(u8_t flag)
 {
-  register struct uip_conn *uip_connr = uip_conn;
+  struct uip_conn *uip_connr = uip_conn;
 
 #if UIP_UDP
   if(flag == UIP_UDP_SEND_CONN) {

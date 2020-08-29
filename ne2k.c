@@ -75,7 +75,7 @@ void ne2k_setup(uint16_t iobase)
 
 	// Set page 3 registers (RTL8019 specific)
 	z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_PAGE_3 | NE_CR_RD2 | NE_CR_STP);
-	z80_outp(ne2k.iobase + NE_P3_9346CR, NE_EEM0 | NE_EEM1);
+	z80_outp(ne2k.iobase + NE_P3_9346CR, (uint8_t) (NE_EEM0 | NE_EEM1));
 	z80_outp(ne2k.iobase + NE_P3_CONFIG3, 0x50); // fdx, leds on
 
 	// Set page 0 registers, abort remote DMA, stop NIC
@@ -144,7 +144,7 @@ int ne2k_transmit(uint8_t *packet, uint16_t length)
     // Set up DMA byte count
     if (length > 64) {
         z80_outp(ne2k.iobase + NE_P0_RBCR0, (unsigned char) length);
-        z80_outp(ne2k.iobase + NE_P0_RBCR1, (unsigned char) length >> 8);
+        z80_outp(ne2k.iobase + NE_P0_RBCR1, (unsigned char) (length >> 8));
     }
     else
     {
@@ -175,7 +175,7 @@ int ne2k_transmit(uint8_t *packet, uint16_t length)
     // Set TX length (packets smaller than 64 bytes must be padded)
     if (length > 64) {
         z80_outp(ne2k.iobase + NE_P0_TBCR0, length);
-        z80_outp(ne2k.iobase + NE_P0_TBCR1, length >> 8);
+        z80_outp(ne2k.iobase + NE_P0_TBCR1, (length >> 8));
     } else {
         z80_outp(ne2k.iobase + NE_P0_TBCR0, 64);
         z80_outp(ne2k.iobase + NE_P0_TBCR1, 0);
@@ -238,7 +238,6 @@ uint16_t ne2k_receive()
     unsigned short packet_ptr;
     unsigned short len;
     unsigned char bndry;
-    int rc;
 
     // Set page 1 registers
     z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_PAGE_1 | NE_CR_RD2 | NE_CR_STA);

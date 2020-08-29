@@ -1,4 +1,3 @@
-#define DEBUG_PRINTF(...) /*printf(__VA_ARGS__)*/
 
 /**
  * \defgroup uip The uIP TCP/IP stack
@@ -17,6 +16,8 @@
  * \file
  * The uIP TCP/IP stack code.
  * \author Adam Dunkels <adam@dunkels.com>
+ * 
+ * Checksum code fixed for sdcc/z88dk by Tobias Schramm
  */
 
 /*
@@ -78,6 +79,8 @@
  * checksums, and fill in the necessary header fields and finally send
  * the packet back to the peer.
 */
+#include "debug.h"
+#define DEBUG_PRINTF(...) myprintf(__VA_ARGS__)
 
 #include "uip.h"
 #include "uipopt.h"
@@ -279,30 +282,35 @@ uip_add32(u8_t *op32, u16_t op16)
 static u16_t
 chksum(u16_t sum, const u8_t *data, u16_t len)
 {
-  u16_t t;
-  const u8_t *dataptr;
-  const u8_t *last_byte;
+  //myprintf("sum: %04x len: %04x\n", sum, len);
+  //print_memory(data, len);
+  //myprintf("\n");
 
-  dataptr = data;
-  last_byte = data + len - 1;
-  
-  while(dataptr < last_byte) {	/* At least two more bytes */
-    t = (dataptr[0] << 8) + dataptr[1];
-    sum += t;
-    if(sum < t) {
-      sum++;		/* carry */
-    }
-    dataptr += 2;
-  }
-  
-  if(dataptr == last_byte) {
-    t = (dataptr[0] << 8) + 0;
+  // Function rewritten by Tobias Schramm
+  // for correct function with SDCC/z88dk
+  for (; len >= 2; len -= 2)
+  {
+    u16_t t;
+
+    t = ((uint16_t)*data++ << 8) | *data++;
     sum += t;
     if(sum < t) {
       sum++;		/* carry */
     }
   }
+  
+  if(len) {
+  	u16_t t;
 
+    t = ((uint16_t)*data << 8);
+    sum += t;
+    if(sum < t) {
+      sum++;		/* carry */
+    }
+  }
+
+  //myprintf("checksum: %04x\n", sum);
+ // myprintf("\n\n");
   /* Return sum in host byte order. */
   return sum;
 }

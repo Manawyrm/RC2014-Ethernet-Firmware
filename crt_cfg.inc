@@ -4,7 +4,7 @@ defc TAR__crt_org_bss               = -1
 
 defc TAR__crt_model                 = 0
 
-defc TAR__register_sp               = 0xC000 ;unsure?
+defc TAR__register_sp               = 0xF000 ;unsure?
 defc TAR__crt_stack_size            = 256
 
 defc TAR__crt_initialize_bss        = 1

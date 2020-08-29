@@ -118,7 +118,7 @@ typedef unsigned short uip_stats_t;
  *
  * \hideinitializer
  */
-#define UIP_CONF_LOGGING         0
+#define UIP_CONF_LOGGING         1
 
 /**
  * UDP support on or off

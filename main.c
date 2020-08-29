@@ -63,6 +63,7 @@ void main()
 		else if(timer_expired(&periodic_timer))
 		{
 			timer_reset(&periodic_timer);
+			//myprintf("periodic timer fired!\n");
 			for(i = 0; i < UIP_CONNS; i++)
 			{
 				uip_periodic(i);
@@ -80,15 +81,16 @@ void main()
 			if(timer_expired(&arp_timer))
 			{
 				timer_reset(&arp_timer);
+				//myprintf("arp timer fired!\n");
 				uip_arp_timer();
 			}
 		}
 		ticks++;
 
-		if (ticks % 1000 == 0)
+		/*if (ticks % 1000 == 0)
 		{
 			myprintf("ticks: %lu\n", ticks);
-		}
+		}*/
 	}
 
 
@@ -109,4 +111,10 @@ void main()
 		}
 		*/
 	}
+}
+
+void uip_log(char *msg)
+{
+	rom_putstring_uart(msg);
+	rom_putchar_uart('\n');
 }

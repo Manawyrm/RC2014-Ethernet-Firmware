@@ -52,7 +52,6 @@ clock_time(void)
   gettimeofday(&tv, &tz);
 
   return tv.tv_sec * 1000 + tv.tv_usec / 1000;*/
-  //return ticks;
-  return 1234;
+  return ticks;
 }
 /*---------------------------------------------------------------------------*/

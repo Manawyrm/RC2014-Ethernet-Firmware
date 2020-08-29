@@ -130,6 +130,11 @@ int ne2k_transmit(uint8_t *packet, uint16_t length)
     unsigned short dst;
     uint16_t i; 
 
+    while (z80_inp(ne2k.iobase + NE_P0_CR) & NE_CR_TXP)
+    {
+        // packet is still being sent. waiting...
+    }
+
     // Set page 0 registers
     z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_RD2 | NE_CR_STA);
 
@@ -137,9 +142,16 @@ int ne2k_transmit(uint8_t *packet, uint16_t length)
     z80_outp(ne2k.iobase + NE_P0_ISR, NE_ISR_RDC);
 
     // Set up DMA byte count
-    z80_outp(ne2k.iobase + NE_P0_RBCR0, (unsigned char) length);
-    z80_outp(ne2k.iobase + NE_P0_RBCR1, (unsigned char) (length >> 8));
-
+    if (length > 64) {
+        z80_outp(ne2k.iobase + NE_P0_RBCR0, (unsigned char) length);
+        z80_outp(ne2k.iobase + NE_P0_RBCR1, (unsigned char) length >> 8);
+    }
+    else
+    {
+        z80_outp(ne2k.iobase + NE_P0_RBCR0, (unsigned char) 64);
+        z80_outp(ne2k.iobase + NE_P0_RBCR1, (unsigned char) 0);
+    }
+    
     // Set up destination address in NIC memory
     dst = ne2k.rx_page_stop; // for now we only use one tx buffer
     z80_outp(ne2k.iobase + NE_P0_RSAR0, (dst * NE_PAGE_SIZE));
@@ -151,6 +163,10 @@ int ne2k_transmit(uint8_t *packet, uint16_t length)
     for (i = 0; i < length; ++i)
     {
         z80_outp(ne2k.iobase + NE_NOVELL_DATA, packet[i]);
+    }
+    while (i++ < 64)
+    {
+        z80_outp(ne2k.iobase + NE_NOVELL_DATA, 0x00);
     }
 
     // Set TX buffer start page
@@ -168,13 +184,16 @@ int ne2k_transmit(uint8_t *packet, uint16_t length)
     // Set page 0 registers, transmit packet, and start
     z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_RD2 | NE_CR_TXP | NE_CR_STA);
 
-    //myprintf("[NE2k] Transmitted packet with length %d\n", length);
+    myprintf("[NE2k] Transmitted packet with length %d\n", length);
+    /*print_memory(uip_buf, length);
+    myprintf("\n\n");*/
+   // z80_delay_ms(100);
 
     return 0;
 }
 
 void ne2k_readmem(uint16_t src, void *dst, uint16_t len)
-{
+{   
     uint16_t i;
 
     // Abort any remote DMA already in progress
@@ -252,8 +271,9 @@ uint16_t ne2k_receive()
 
             //}
 
-            //myprintf("[NE2k] received packet, %d bytes\n", len);
-            //print_memory(uip_buf, len);
+            myprintf("[NE2k] received packet, %d bytes\r\n", len);
+            /*print_memory(uip_buf, len);
+            myprintf("\r\n");*/
             /*rc = dev_receive(ne->devno, p); 
             if (rc < 0)
             {
@@ -278,7 +298,7 @@ uint16_t ne2k_receive()
         if (bndry < ne2k.rx_page_start) bndry = ne2k.rx_page_stop - 1;
         z80_outp(ne2k.iobase + NE_P0_BNRY, bndry);
 
-        //myprintf("[NE2k] start: %02x stop: %02x next: %02x bndry: %02x\n", ne2k.rx_page_start, ne2k.rx_page_stop, ne2k.next_pkt, bndry);
+        //myprintf("[NE2k] start: %02x stop: %02x next: %02x bndry: %02x\r\n", ne2k.rx_page_start, ne2k.rx_page_stop, ne2k.next_pkt, bndry);
 
         // Set page 1 registers
         z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_PAGE_1 | NE_CR_RD2 | NE_CR_STA);

@@ -34,6 +34,19 @@
 struct ne2k_struct ne2k;
 struct uip_eth_addr uip_addr; 
 
+void ne2k_dump_headers()
+{
+    struct recv_ring_desc header;
+    for (uint16_t i = 0x40; i < 0x60; i++)
+    {
+         // Read receive ring descriptor
+        ne2k_readmem(i * NE_PAGE_SIZE, &header, sizeof(struct recv_ring_desc));
+
+        myprintf("Page 0x%02x - RSR: 0x%02x, Next Pkt: 0x%02x, Length: 0x%04x\n", i, header.rsr, header.next_pkt, header.count);
+    }
+    
+}
+
 void ne2k_setup(uint16_t iobase)
 {
     uint8_t i = 0; 
@@ -51,13 +64,14 @@ void ne2k_setup(uint16_t iobase)
 
     uip_setethaddr(uip_addr);
 
-	ne2k.rx_page_start = (16 * 1024) / NE_PAGE_SIZE;
-	ne2k.rx_page_stop = ne2k.rx_page_start + ((16 * 1024) / NE_PAGE_SIZE) - NE_TXBUF_SIZE * NE_TX_BUFERS;
+	ne2k.rx_page_start = 0x40; // first page at 16k
+
+    // 12 pages (2x 1536 bytes) at the end of the SRAM as a transmit buffer
+	ne2k.rx_page_stop = 0x60 - NE_TXBUF_SIZE * NE_TX_BUFERS; // last page at 0x60 (not 0x80 (!), because we're in 8bit mode, see RTL8019AS datasheet, p.15)
 	ne2k.next_pkt = ne2k.rx_page_start + 1;
 
     ne2k.rx_ring_start = ne2k.rx_page_start * NE_PAGE_SIZE;
     ne2k.rx_ring_end = ne2k.rx_page_stop * NE_PAGE_SIZE;
-
 
 	rom_putstring_uart("[NE2k] Resetting card...\n");
 
@@ -250,43 +264,28 @@ uint16_t ne2k_receive()
         // Read receive ring descriptor
         ne2k_readmem(packet_ptr, &packet_hdr, sizeof(struct recv_ring_desc));
 
-        // Allocate packet buffer
-        len = packet_hdr.count - sizeof(struct recv_ring_desc);
-        //p = pbuf_alloc(PBUF_RAW, len, PBUF_RW);
+        // This was once caused in 8bit mode with a page stop behind 0x60 (which isn't allowed according to the RTL8019 datasheet.)
+        // It shouldn't and probably will not happen in any normal operation. 
+        if (!(packet_hdr.rsr & 0x01))
+        {
+            myprintf("[NE2k] Packet read with invalid RSR, Page: 0x%02x, RSR: 0x%02x, Next Pkt: 0x%02x, Length: 0x%04x\n", ne2k.next_pkt, packet_hdr.rsr, packet_hdr.next_pkt, packet_hdr.count);
+            return 0;
+        }
 
+        len = packet_hdr.count - sizeof(struct recv_ring_desc);
+        //myprintf("[NE2k] received packet, %u bytes\r\n", len);
         if (len > UIP_BUFSIZE)
         {
-            myprintf("[NE2k] packet too large! undefined behaviour! :/\n");
+            myprintf("[NE2k] packet too large. dumping all packet headers!\n");
+            ne2k_dump_headers();
+            return 0;
         }
-        // Get packet from nic and send to upper layer
-        //if (p != NULL)
-        //{
-            packet_ptr += sizeof(struct recv_ring_desc);
-            //for (q = p; q != NULL; q = q->next)
-            //{
+            
+        // Fetch packet payload
+        packet_ptr += sizeof(struct recv_ring_desc);
+        ne2k_get_packet(packet_ptr, uip_buf, len);
 
-            ne2k_get_packet(packet_ptr, uip_buf, len);
-            packet_ptr += len;
-
-            //}
-
-            //myprintf("[NE2k] received packet, %d bytes\r\n", len);
-            /*print_memory(uip_buf, len);
-            myprintf("\r\n");*/
-            /*rc = dev_receive(ne->devno, p); 
-            if (rc < 0)
-            {
-            myprintf("[NE2k] error %d processing packet\n", rc);
-            pbuf_free(p);
-            }*/
-        /*}
-        else
-        {
-            // Drop packet
-            myprintf("[NE2k] packet dropped\n");
-        }*/
-
-        // Update next packet pointer
+        // Set the read pointer to the page number give in the received header
         ne2k.next_pkt = packet_hdr.next_pkt;
 
         // Set page 0 registers
@@ -297,7 +296,7 @@ uint16_t ne2k_receive()
         if (bndry < ne2k.rx_page_start) bndry = ne2k.rx_page_stop - 1;
         z80_outp(ne2k.iobase + NE_P0_BNRY, bndry);
 
-        //myprintf("[NE2k] start: %02x stop: %02x next: %02x bndry: %02x\r\n", ne2k.rx_page_start, ne2k.rx_page_stop, ne2k.next_pkt, bndry);
+        //myprintf("[NE2k] 2: start: %02x stop: %02x next: %02x bndry: %02x\r\n", ne2k.rx_page_start, ne2k.rx_page_stop, ne2k.next_pkt, bndry);
 
         // Set page 1 registers
         z80_outp(ne2k.iobase + NE_P0_CR, NE_CR_PAGE_1 | NE_CR_RD2 | NE_CR_STA);

@@ -1,7 +1,7 @@
 RC2014/Z80 RTL8019 webserver
 ---------------------
 
-![RTL8019 network card](https://screenshot.tbspace.de/okqcvfgylrj.jpg)
+![RTL8019 network card](https://screenshot.tbspace.de/kwfyhrvlieq.jpg)
 ![Screenshot of Chrome displaying a webpage hosted on an RC2014](https://screenshot.tbspace.de/ciqyeltprxk.png)
 
 This is a combined HTTP server, TCP/IP stack and NE2000 driver for [RTL8019-based network cards](https://github.com/manawyrm/RC2014-Ethernet) on the RC2014.  

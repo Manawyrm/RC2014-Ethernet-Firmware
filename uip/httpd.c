@@ -197,7 +197,7 @@ PT_THREAD(send_headers(struct httpd_state *s, const char *statushdr))
   if(ptr == NULL) {
     PSOCK_SEND_STR(&s->sout, http_content_type_binary);
   } else if(strncmp(http_html, ptr, 5) == 0 ||
-	    strncmp(http_shtml, ptr, 6) == 0) {
+	    strncmp(http_htm, ptr, 4) == 0) {
     PSOCK_SEND_STR(&s->sout, http_content_type_html);
   } else if(strncmp(http_css, ptr, 4) == 0) {
     PSOCK_SEND_STR(&s->sout, http_content_type_css);
@@ -208,7 +208,7 @@ PT_THREAD(send_headers(struct httpd_state *s, const char *statushdr))
   } else if(strncmp(http_jpg, ptr, 4) == 0) {
     PSOCK_SEND_STR(&s->sout, http_content_type_jpg);
   } else {
-    PSOCK_SEND_STR(&s->sout, http_content_type_plain);
+    PSOCK_SEND_STR(&s->sout, http_content_type_html);
   }
   PSOCK_END(&s->sout);
 }

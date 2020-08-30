@@ -4,7 +4,7 @@
 //
 // NE2000 network driver
 // Originally written by Michael Ringgaard
-// Modified by Tobias Mädel
+// Heavily modified for Z80/RC2014 by Tobias Mädel
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions

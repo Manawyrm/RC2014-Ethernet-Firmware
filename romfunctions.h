@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "pff.h"
 
 extern void** _romfunctions;
 
@@ -44,6 +45,19 @@ static inline void rom_putchar_uart(char text)
 	((rom_putchar_uart_f)_romfunctions[ROM_PUTCHAR_UART])(text);
 }
 
+typedef FRESULT (*rom_pf_open_f) (const char* path);   
+
+static inline FRESULT rom_pf_open(const char* path)
+{
+	return ((rom_pf_open_f)_romfunctions[ROM_PF_OPEN])(path);
+}
+
+typedef FRESULT (*rom_pf_read_f) (void* buff, UINT btr, UINT* br);   
+
+static inline FRESULT rom_pf_read(void* buff, UINT btr, UINT* br)
+{
+	return ((rom_pf_read_f)_romfunctions[ROM_PF_READ])(buff, btr, br);
+}
 
 typedef void (*rom_cf_init_f) ();   
 

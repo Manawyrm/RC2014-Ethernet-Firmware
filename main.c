@@ -21,11 +21,19 @@ void main()
 
 	uip_init();
 
-	uip_ipaddr(ipaddr, 10,0,0,2);
+/*	uip_ipaddr(ipaddr, 10,0,0,2);
 	uip_sethostaddr(ipaddr);
 	uip_ipaddr(ipaddr, 10,0,0,1);
 	uip_setdraddr(ipaddr);
 	uip_ipaddr(ipaddr, 255,255,255,0);
+	uip_setnetmask(ipaddr);
+
+*/
+	uip_ipaddr(ipaddr, 44,190,22,131);
+	uip_sethostaddr(ipaddr);
+	uip_ipaddr(ipaddr, 44,190,22,129);
+	uip_setdraddr(ipaddr);
+	uip_ipaddr(ipaddr, 255,255,255,240);
 	uip_setnetmask(ipaddr);
 
 	httpd_init();
